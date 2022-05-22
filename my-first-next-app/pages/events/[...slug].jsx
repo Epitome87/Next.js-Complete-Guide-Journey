@@ -1,4 +1,5 @@
 import React from 'react';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 // import { getFilteredEvents } from '../../dummyData';
 import { getFilteredEvents } from '../../services/eventServices';
@@ -36,9 +37,18 @@ function FilteredEventsPage({ events, hasError, numYear, numMonth }) {
   //   );
   // }
 
+  const pageHeadData = (
+    <Head>
+      <title>Next.js Events - Filtered Events</title>
+      <meta name='description' content={`All events for ${numMonth}/${numYear}`} />
+      <link rel='icon' href='/favicon.ico' />
+    </Head>
+  );
+
   if (hasError) {
     return (
       <>
+        {pageHeadData}
         <ErrorAlert>
           <p>Invalid filter. Please adjust your values</p>
         </ErrorAlert>
@@ -54,6 +64,7 @@ function FilteredEventsPage({ events, hasError, numYear, numMonth }) {
   if (!filteredEvents?.length) {
     return (
       <>
+        {pageHeadData}
         <ErrorAlert>
           <p>No events found for the chosen filter</p>
         </ErrorAlert>
@@ -68,6 +79,7 @@ function FilteredEventsPage({ events, hasError, numYear, numMonth }) {
 
   return (
     <>
+      {pageHeadData}
       <ResultsTitle date={date} />
       <p>{filteredEvents.length} events found</p>
       <EventList events={filteredEvents} />

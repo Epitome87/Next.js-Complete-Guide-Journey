@@ -1,4 +1,5 @@
 import React from 'react';
+import Head from 'next/head';
 // import { useRouter } from 'next/router';
 // import { getEventById } from '../../dummyData.js';
 import EventSummary from '../../components/EventDetail/EventSummary';
@@ -27,6 +28,11 @@ function EventDetailPage({ event }) {
 
   return (
     <>
+      <Head>
+        <title>Next.js Events - {event.title}</title>
+        <meta name='description' content={event.description} />
+        <link rel='icon' href='/favicon.ico' />
+      </Head>
       <EventSummary title={event.title} />
       <EventLogistics date={event.date} address={event.location} image={event.image} imageAlt={event.title} />
       <EventContent>

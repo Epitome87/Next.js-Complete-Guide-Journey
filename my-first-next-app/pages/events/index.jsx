@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import EventList from '../../components/Events/EventList';
 import EventsSearch from '../../components/Events/EventsSearch';
@@ -19,6 +20,11 @@ function EventsPage({ events }) {
 
   return (
     <>
+      <Head>
+        <title>Next.js Events - All Events</title>
+        <meta name='description' content='Find a lot of great events that allow you to evolve!' />
+        <link rel='icon' href='/favicon.ico' />
+      </Head>
       <EventsSearch onSearch={handleSearch} />
       <EventList events={events} />
     </>

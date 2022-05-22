@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import styles from './EventItem.module.css';
 import Button from '../UI/Button';
 
@@ -14,7 +15,7 @@ function EventItem({ id, image, date, location, title }) {
 
   return (
     <div className={styles.item}>
-      <img src={image} alt={title} />
+      <Image src={image} alt={title} width={250} height={160} />
       <div className={styles.content}>
         <div className={styles.summary}>
           <h2>{title}</h2>
@@ -26,7 +27,7 @@ function EventItem({ id, image, date, location, title }) {
           </div>
         </div>
         <div className={styles.actions}>
-          <Button link={`events/${id}`}>Explore Event</Button>
+          <Button link={`/events/${id}`}>Explore Event</Button>
         </div>
       </div>
     </div>
