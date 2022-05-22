@@ -818,6 +818,182 @@ const nextConfig = {
 
 ### `Section Completed: 5/21/2022`
 
+## Section Introduction
+
+We will look finally go beyond page rendering and explore...
+
+- API Routes
+  - What are API Routes?
+  - Adding & Using API Routes
+  - Working with Requests & Responses
+
+## What are API Routes?
+
+Some websites are about more than just serving pages.
+
+- Accept user feedback submission, newsletter signups, etc
+- Don't necessarily want to show a different page, just provide feedback based on input
+- Need to send data to some server to store in a database, not a request for a new HTML page
+
+What is an API?
+
+- Application Programming Interface
+
+Rest API
+
+- Representational State Transfer (a specific form / structure for web APIs)
+
+| URL / Path              | HTTTP Method                                 | Action                                                                          |
+| ----------------------- | -------------------------------------------- | ------------------------------------------------------------------------------- |
+| my-domain.com/some-path | POST, GET, DELETE ...                        | Server-side code executes -- possibly different code for different HTTP methods |
+|                         | Data is typically transferred in JSON format | { "some-field": "some-value" }                                                  |
+
+Client sends request with data, server (using REST API) sends back a response with data to client
+
+What are API Routes?
+
+- URLs that don't return pages (HTML) but instead provide a (REST) API
+- Support things like /api/feedback with various types of HTTP requests, to send request to store feedback, to get feedback, etc
+- Requests are typically not sent by entering URL in browser but via JavaScript code (Ajax)
+
+## Writing Our First API Route
+
+- Need a `api` folder inside of `pages` folder
+  - This name is **mandatory!**
+  - These files inside here will be treated as RESTful routes
+- Should create a function (typically called **handler** that accepts a request and response)
+  - Code in this function runs only on the server -- will never end up in any client-side code bundle
+- Here we write Node.js code that is enhanced by the Next.js team to look a little like Express.js code
+
+```js
+// Inside /api/feedback.js
+
+function handler(req, res) {
+  res.status(200).json({
+    message: 'This works!',
+  });
+}
+
+export default handler;
+```
+
+The above code runs when we send a request to '/api/feedback' -- sends back a JSON data as a response.
+
+A more complete API example might look like:
+
+```js
+import fs from 'fs';
+import path from 'path';
+
+export const buildFeedbackPath = () => {
+  return path.join(process.cwd(), 'data', 'feedback.json');
+};
+
+export const extractFeedback = (filePath) => {
+  const fileData = fs.readFileSync(filePath);
+  const data = JSON.parse(fileData);
+
+  return data;
+};
+
+function handler(req, res) {
+  let data;
+
+  switch (req.method) {
+    case 'GET':
+      data = extractFeedback(buildFeedbackPath());
+      res.status(200).json({ feedback: data });
+      break;
+    case 'POST':
+      const { email, feedback } = req.body;
+
+      const newFeedback = {
+        id: new Date().toISOString(),
+        email,
+        feedback,
+      };
+
+      data = extractFeedback(buildFeedbackPath());
+
+      data.push(newFeedback);
+      fs.writeFileSync(filePath, JSON.stringify(data));
+
+      res.status(201).json({
+        message: 'Success!',
+        feedback: newFeedback,
+      });
+      break;
+    default:
+      res.status(200).json({ message: 'Test' });
+      break;
+  }
+}
+
+export default handler;
+```
+
+## Using API Routes For Pre-Rendering Pages
+
+- **VERY IMPORTANT**: We do not use fetch or axios or make any HTTP request inside getStaticProps or getServerSideProps!
+  - Why make an HTTP request to our server, when these functions run inside the server to begin with?
+  - Therefore, we typically just export helper API functions that will run the logic we need
+  - But we don't want these helper functions to do the typical API logic of responding with a status or a JSON response
+
+## Creating & Using Dynamic API Routes
+
+Continuing with our previous _feedback_ resource example, we can handle dynamic API routes as follows:
+
+```js
+// In api/[feedbackId].js
+import { buildFeedbackPath, extractFeedback } from './feedback';
+
+function handler(req, res) {
+  switch (req.method) {
+    case 'GET':
+      const { feedbackId } = req.query;
+      const feedbackData = extractFeedback(buildFeedbackPath());
+      const selectedFeedback = feedbackData.find((item) => item.id === feedbackId);
+
+      res.status(200).json({
+        feedback: selectedFeedback,
+      });
+      break;
+    default:
+      res.status(200).json({ message: 'Test ' });
+  }
+}
+
+export default handler;
+```
+
+Fairly similar to before, and fairly similar to how we would do so in an Express app. Except we extract the dynamic identifier inside `req.query` here, whereas in an Express app we would do so in `req.params`.
+
+## Exploring Different Ways of Structuring API Route Files
+
+Like with page components, we can use the `[...identifier].js` format for an API file to handle _catch-all_ API routes.
+Like with page components, Next.js is intelligent enough to know that a request to '/api/feedback' should be handled by any API route that matches that name exactly, and not by the '[feedbackId].js' API route. It gives preference to the more specific path over the more generic ones.
+
+You also have options with how you strucutre your files and folders, again similar with page components:
+
+1. api/feedback/index.js and api/feedback/[feedbackid].js
+2. api/[feedbackId].js and api/feedback.js
+
+However, it is **important** to note that in our particular example, '[feedbackId]' was getting hit at '/api/someId' route. With the second folder structure, it is now hit at '/api/feedback/feedbackId' -- which is more aligned with RESTful conventions, anyway.
+
+## Section Summary
+
+What we learned:
+
+- Backend functionality triggered through client-side code, then API routes are useful
+- Don't have to build an API backend / second project
+- Easily inject API routes by using special API folder
+- Write server-side code here
+- Find out what type of request was sent, send back responses
+- Static and dynamic API routes
+- How to structure files and folders in api folder
+
+### `Section Completed: 5/21/2022`
+
 # Section 08 - Adding Backend Code with API Routes (Fullstack React)
 
 # Section 09 - Project Time - API Routes
