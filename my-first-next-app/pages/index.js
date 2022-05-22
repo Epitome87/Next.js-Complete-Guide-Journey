@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
 import styles from '../styles/Home.module.css';
@@ -9,6 +10,36 @@ import EventList from '../components/Events/EventList';
 // Good candidate for getStaticProps!
 export default function Home({ events }) {
   // const featuredEvents = getFeaturedEvents();
+
+  const [feedbackItems, setFeedbackItems] = useState([]);
+
+  const emailInputRef = useRef();
+  const feedbackInputRef = useRef();
+
+  const handleFormSubmit = (event) => {
+    event.preventDefault();
+
+    const enteredEmail = emailInputRef.current.value;
+    const enteredFeedback = feedbackInputRef.current.value;
+
+    const requestBody = { email: enteredEmail, feedback: enteredFeedback };
+
+    fetch('/api/feedback', {
+      method: 'POST',
+      body: JSON.stringify(requestBody),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => console.log('Data', data));
+  };
+
+  const handleLoadFeedback = async (event) => {
+    const response = await fetch('/api/feedback');
+    const data = await response.json();
+    setFeedbackItems([...data.feedback]);
+  };
 
   return (
     <div className={styles.container}>
@@ -28,6 +59,28 @@ export default function Home({ events }) {
       <main className={styles.main}>
         <h1>Explore our Featured Events</h1>
         <EventList events={events} />
+        <form onSubmit={handleFormSubmit}>
+          <div>
+            <label htmlFor='email'>Your Email Address</label>
+            <input type='email' id='email' ref={emailInputRef} />
+          </div>
+          <div>
+            <label htmlFor='feedback'>Your feedback</label>
+            <textarea id='feedback' rows='5' ref={feedbackInputRef}></textarea>
+            <button>Send Feedback</button>
+          </div>
+        </form>
+        <hr />
+        <button onClick={handleLoadFeedback}>Load Feedback</button>
+        <ul>
+          {feedbackItems.map((item) => {
+            return (
+              <li key={item.id}>
+                {item.email} - {item.feedback}
+              </li>
+            );
+          })}
+        </ul>
       </main>
     </div>
   );
