@@ -6,6 +6,7 @@ import Link from 'next/link';
 // import { getFeaturedEvents } from '../dummyData';
 import { getFeaturedEvents } from '../services/eventServices';
 import EventList from '../components/Events/EventList';
+import NewsletterRegistration from '../components/Input/NewsletterRegistration';
 
 // Good candidate for getStaticProps!
 export default function Home({ events }) {
@@ -58,6 +59,7 @@ export default function Home({ events }) {
 
       <main className={styles.main}>
         <h1>Explore our Featured Events</h1>
+        <NewsletterRegistration />
         <EventList events={events} />
         <form onSubmit={handleFormSubmit}>
           <div>

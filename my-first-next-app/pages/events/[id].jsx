@@ -7,6 +7,7 @@ import EventLogistics from '../../components/EventDetail/EventLogistics';
 import EventContent from '../../components/EventDetail/EventContent';
 import ErrorAlert from '../../components/UI/ErrorAlert/ErrorAlert.js';
 import { getAllEvents, getEventById, getFeaturedEvents } from '../../services/eventServices';
+import Comments from '../../components/Input/Comments';
 // import { getFeaturedEvents } from '../../dummyData';
 
 // An individual Event page definitely requires its content to be search-engine crawlable! So we for sure want pre-rendering. Which type?
@@ -38,6 +39,7 @@ function EventDetailPage({ event }) {
       <EventContent>
         <p>{event.description}</p>
       </EventContent>
+      <Comments eventId={event.id} />
     </>
   );
 }
