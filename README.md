@@ -701,6 +701,123 @@ Some notes observed during completion of this project:
 
 # Section 07 - Optimizing Next.js Apps
 
+This section includes Lectures 122 - 133
+
+In this section, we will learn:
+
+- Adding Meta and <head> Tags
+- Re-using Components, Logic & Configuration
+- Optimizing Images
+
+## Analyzing the Need for <head> Metadata
+
+- Enhance user experience
+- Crucial for search engines (Title, Description, etc)
+
+## Configuring the <head> Content
+
+You can use a special component:
+
+```js
+import Head from 'next/head';
+
+function HomePage(props) {
+  return (
+    <Fragment>
+      <Head>
+        <title>Next.js Events</title>
+        <meta name='description' content='Find a lot of great events that allow you to evolve!' />
+      </Head>
+    </Fragment>
+  );
+}
+```
+
+- Note it does not have to be at the top level
+- Can add any HTML elements that would normally go between the head section of your HTML
+- Each page can add one!
+
+## Merging <head> Content
+
+- Next.js automatically merges head elements! So if you define a head around the entire app, and then again inside a particular page component, they will be merged
+- It is merged even if you have multiple head within the same component, too
+- But there can be conflicts -- what if both have a title tag?
+  - Only one will show up -- the one that appeared later
+
+## The `_document.js` File (And What it Does)
+
+App.js is your application shell. Root component inside of the body section of your HTML document, if you will.
+
+There is also an optional `_document.js` file, which you must add yourself.
+
+- Allows you to customize the _entire_ HTML document. All the elements that make it up
+- Add class-based component in it (must be class-based to extend Document from 'next/document')
+
+```js
+import Document, { Html, Head, Main, NextScript } from 'next/document';
+
+class MyDocument extends Document {
+  render() {
+    return (
+      <Html>
+        <Head />
+        <body>
+          <Main />
+          <NextScript />
+        </body>
+      </Html>
+    );
+  }
+}
+```
+
+- This is the default structure
+
+Why might you want to customize this?
+
+- Add lang attribute to Html tag
+- Maybe add an overlay div inside body
+  - Add HTML content outside of app component tree. For example, using those elements with React portal. Portal modals / overlays to this element
+
+## A Closer Look At Images
+
+Easily optimize images by just using the `Image` component in `next/image`!
+
+- Use it to replace the standard `<img />` element
+- Creates multiple version of our images on the fly, opt for OS and device sizes that are making requests
+- Not generated in advance, generated when needed, but...
+- Cached for future requests for similar devices
+- Default is lazy loading images
+  - If image not visible, Next.js won't download them until required
+
+```js
+<Image src alt width height />
+```
+
+- Width and height are the size you want to be displayed, **not** the size of the image source
+
+We can view these optimized images in the /.next/cache/images folder
+
+If your images use external resources, must add this in the next.config.js file:
+
+```js
+const nextConfig = {
+  reactStrictMode: true,
+  images: {
+    domains: ['source.unsplash.com', 'images.unsplash.com'],
+    formats: ['image/webp'],
+  },
+};
+```
+
+## Section Summary
+
+- Optimize meta data with Head component
+- Optimize images
+- \_app, \_document
+
+### `Section Completed: 5/21/2022`
+
 # Section 08 - Adding Backend Code with API Routes (Fullstack React)
 
 # Section 09 - Project Time - API Routes
