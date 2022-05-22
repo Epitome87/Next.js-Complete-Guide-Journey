@@ -683,7 +683,7 @@ With the example above, lets assume at the time we pre-generate the page, we hav
 
 Also note, that since we `npm install swr` and use `useSWR` (a hook created by the Next.js developers, but can be used in regular React as well), the user's page will refresh when it loses and regains focus!
 
-### `Section Completed: 5/19/2022`
+### `Section Completed: 5/21/2022`
 
 # Section 06 - Page Pre-Rendering & Data Fetching
 
@@ -692,6 +692,12 @@ In this module, we will revisit the "Events" project started earlier in the cour
 - Adding static site generation & server-side rendering
 - When to use which
 - Adding client-side data fetching
+
+Some notes observed during completion of this project:
+
+- Doesn't really make too much sense to use client-side data fetching **and** getServerSideProps at once, unless you want to look into request headers
+
+### `Section Completed: 5/21/2022`
 
 # Section 07 - Optimizing Next.js Apps
 
