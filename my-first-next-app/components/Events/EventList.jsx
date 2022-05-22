@@ -3,6 +3,10 @@ import EventItem from './EventItem';
 import styles from './EventList.module.css';
 
 function EventList({ events }) {
+  if (!events) {
+    return <p>Loading Events</p>;
+  }
+
   return (
     <ul className={styles.list}>
       {events.map((event) => (

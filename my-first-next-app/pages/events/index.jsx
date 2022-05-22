@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import EventList from '../../components/Events/EventList';
 import EventsSearch from '../../components/Events/EventsSearch';
-import { getAllEvents, getFeaturedEvents, getFilteredEvents } from '../../dummyData';
+// import { getAllEvents, getFeaturedEvents, getFilteredEvents } from '../../dummyData';
+import { getAllEvents, getFeaturedEvents } from '../../services/eventServices';
 
-function EventsPage() {
+// Page should be understood by search-engine crawlers. As a visitor, would be nice to see content instantly. Data probably doesn't change too often.
+// Not user-specific, not tied behind an authenticated user
+// This makes it perfect candidate for pre-rendering. Which method, though?
+// Don't need to pre-render for every request...so getStaticProps it is!
+function EventsPage({ events }) {
   const router = useRouter();
-  const [events, setEvents] = useState(getAllEvents());
 
   const handleSearch = (year, month) => {
-    console.log('SEARCHING', year, month);
     const path = `/events/${year}/${month}`;
     router.push(path);
   };
@@ -23,3 +26,14 @@ function EventsPage() {
 }
 
 export default EventsPage;
+
+export async function getStaticProps(context) {
+  const response = await getAllEvents();
+
+  return {
+    props: {
+      events: response,
+    },
+    revalidate: 60,
+  };
+}

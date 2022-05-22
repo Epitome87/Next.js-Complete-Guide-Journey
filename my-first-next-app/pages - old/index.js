@@ -2,13 +2,10 @@ import Head from 'next/head';
 import Image from 'next/image';
 import styles from '../styles/Home.module.css';
 import Link from 'next/link';
-// import { getFeaturedEvents } from '../dummyData';
-import { getFeaturedEvents } from '../services/eventServices';
-import EventList from '../components/Events/EventList';
+import { getFeaturedEvents } from '../dummyData';
 
-// Good candidate for getStaticProps!
-export default function Home({ events }) {
-  // const featuredEvents = getFeaturedEvents();
+export default function Home() {
+  const featuredEvents = getFeaturedEvents();
 
   return (
     <div className={styles.container}>
@@ -26,20 +23,21 @@ export default function Home({ events }) {
       </header>
 
       <main className={styles.main}>
-        <h1>Explore our Featured Events</h1>
-        <EventList events={events} />
+        <h1>Hello, Next.js World!</h1>
       </main>
+
+      <footer className={styles.footer}>
+        <a
+          href='https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app'
+          target='_blank'
+          rel='noopener noreferrer'
+        >
+          Powered by{' '}
+          <span className={styles.logo}>
+            <Image src='/vercel.svg' alt='Vercel Logo' width={72} height={16} />
+          </span>
+        </a>
+      </footer>
     </div>
   );
-}
-
-export async function getStaticProps(context) {
-  const featuredEvents = await getFeaturedEvents();
-
-  return {
-    props: {
-      events: featuredEvents,
-    },
-    revalidate: 1800, // Every half hour
-  };
 }
