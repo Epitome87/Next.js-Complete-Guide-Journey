@@ -501,7 +501,7 @@ export async function getStaticPaths() {
 
 ## Fallback Pages & Not Found Pages
 
-What if we want to provide a `fallback` of _true_ or _'blocking'_ for dynamic paths that actually exist in the fetched _calculatedPaths_ array above, but for ones which we don't wish to pre-generate, as they are not visited very often? That's fine, but in cases where we don't have a valid dynamic path, we would run into an error!
+What if we want to provide a `fallback` of _true_ or _'blocking'_ for dynamic paths that actually exist in the fetched _calculatedPaths_ array above, but which we don't wish to pre-generate, as they are not visited very often? That's fine, but in cases where we don't have a valid dynamic path, we would run into an error!
 
 When the [id].js component loads for an id that is not part of our fetched data, our component attempts to call upon data that won't exist. This is a useful case for setting the `notFound` boolean in the `getStaticProps` function!
 
@@ -525,7 +525,173 @@ return {
 
 ## Introducing getServerSideProps
 
+Sometimes, static pre-generation isn't enough; you need real server-side rendering.
+Sometimes, you need to pre-render for _every_ request _or_ you need access to the request object (e.g. for cookies)
+
+Next.js allows you to run "real server-side code" as well!
+
+- Gives you a function which you can add to page components, which is _really_ executed whenever a request for this page reaches server
+  - Not during build-time, or every x amount of minutes like pre-generation
+- This function is `export async function getServerSideProps() { ... }`
+- Use _either_ getServerSideProps or getStaticProps, not both in same page
+
+## Using getServerSideProps for Server-Side Rendering
+
+```js
+import React from 'react';
+
+function UserProfilePage(props) {
+  return (
+    <>
+      <h1>{props.username}</h1>
+    </>
+  );
+}
+
+export default UserProfilePage;
+
+export async function getServerSideProps(context) {
+  return {
+    props: {
+      username: 'Matthew',
+    },
+    // These can also be allowed
+    // notFound: {}
+    // redirect: {}
+  };
+}
+```
+
+- Very similar to getStaticProps
+- Returns an object with a props key, and optionally notFound and redirect
+- Object returned does not contain a _revalidate_ key, as we send a file for each new request already
+
+## getServerSideProps and its Context
+
+- Unlike context in getStaticProps, we don't just have access to _params_ and etc, we get access to the _full request object_ as well, as well as the response which will be sent back
+
+```js
+export asyn function getServerSideProps(context) {
+  const { params, req, res } = context;
+return {
+    props: {
+      username: 'Matthew',
+    },
+  };
+}
+```
+
+- Next.js will send back a response for you (unlike in Node Express apps). But we can use the res objet and manipulate it
+- Can read incoming data from the `req` object
+- The `req` and `res` objects returned are the Node.js _default_ objects. So those with familiarity with Node.js will feel right at home!
+
+## Dynamic Pages & getServerSideProps
+
+For dynamic pages that make use of getServerSideProps, we do **not** need to make use of getStaticPaths!
+It runs only on the server anyways, so Next.js does not pre-generate any pages, so it doesn't need to know which pages to pre-generate!
+
+## Introducing Client-Side Data Fetching (And When to Use It)
+
+So, why even use client-side data fetching?
+
+- Some data just doesn't need to be pre-rendered. For instance...
+  - Data changing with high frequency (e.g. stock data)
+  - Highly user-specific data (e.g. last orders in an online shop)
+  - Partial data (e.g. data that's only used on a part of a page, like a dashboard page)
+- Pre-fetching the data for page generation might not work or be required
+- "Traditional" client-side data fetching (e.g. useEffect() with fetch() is fine)
+- Might not make sense to pre-gen it because it's personal data or because it's changing a lot
+- Waiting a second for data to load on the client, but having a quicker navigation to the page might be preferential in these scenarios
+
+In this way, we have a page that behaves similar to a normal React page. But since by default pages are pre-generated in some form, we need to ensure we have conditional logic that will prevent our waiting-to-be-fetched data from causing any errors when accessing that data before it is ready. We typically do this in React apps, any way.
+
+## Combining Pre-Fetching with Client-Side Fetching
+
+Combining client-side data fetching with server-side pre-rendering. Pre-render a basic snapshot, but still fetch the latest data from the client.
+
+Here is what a working example would look like:
+
+```js
+import React, { useEffect, useState } from 'react';
+import useSWR from 'swr';
+
+function LastSalesPage(props) {
+  // Set initial state as pre-generated sales
+  const [sales, setSales] = useState(props.sales);
+  const { data, error } = useSWR('someURL');
+
+  useEffect(() => {
+    if (data) {
+      //   Transform data to our needs
+      const transformedSales = [];
+
+      for (const key in data) {
+        transformedSales.push({
+          id: KeyboardEvent,
+          username: data[key].username,
+          volume: data[key].volume,
+        });
+      }
+
+      setSales(transformedSales);
+    }
+  }, [data]);
+
+  if (error) {
+    return <p>Failed to load</p>;
+  }
+
+  if (!data && !sales) {
+    return <p>Loading...</p>;
+  }
+
+  return (
+    <>
+      <ul></ul>
+    </>
+  );
+}
+
+export async function getStaticProps(context) {
+  // Can't use useSWR here: we are not in a React component, so no hooks allowed!
+  const response = await fetch('someURL');
+  const data = await response.json();
+
+  //   Transform data to our needs
+  const transformedSales = [];
+
+  for (const key in data) {
+    transformedSales.push({
+      id: KeyboardEvent,
+      username: data[key].username,
+      volume: data[key].volume,
+    });
+  }
+
+  return {
+    props: {
+      sales: transformedSales,
+      revalidate: 10,
+    },
+  };
+}
+
+export default LastSalesPage;
+```
+
+With the example above, lets assume at the time we pre-generate the page, we have a database that shows two recent sales. The user visits the page and is immediately given HTML with those 2 sales as part of it, as they were pre-fetched and pre-generated at build-time. The user is on the page for several minutes, during which are database collects several more new sales. If the user were to refresh his page, he would immediately see the same 2 pre-generated sales as last time. He would also see the new sales, though, as they are being re-fetched client-side. They will not be part of the HTML, though, and may take a moment to be sent to the user. So, we get the 2 sales that were recognized when getStaticProps ran, and then the new ones when the component mounts on the client and begins fetching the new data.
+
+Also note, that since we `npm install swr` and use `useSWR` (a hook created by the Next.js developers, but can be used in regular React as well), the user's page will refresh when it loses and regains focus!
+
+### `Section Completed: 5/19/2022`
+
 # Section 06 - Page Pre-Rendering & Data Fetching
+
+In this module, we will revisit the "Events" project started earlier in the course, this time approaching it with what we learned:
+
+- Adding static site generation & server-side rendering
+- When to use which
+- Adding client-side data fetching
 
 # Section 07 - Optimizing Next.js Apps
 
