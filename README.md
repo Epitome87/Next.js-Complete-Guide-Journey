@@ -818,6 +818,8 @@ const nextConfig = {
 
 ### `Section Completed: 5/21/2022`
 
+# Section 08 - Adding Backend Code with API Routes (Fullstack React)
+
 ## Section Introduction
 
 We will look finally go beyond page rendering and explore...
@@ -994,7 +996,7 @@ What we learned:
 
 ### `Section Completed: 5/21/2022`
 
-# Section 08 - Adding Backend Code with API Routes (Fullstack React)
+# Section 09 - Project Time - API Routes
 
 In this section, we will revisit the Events project and incorporate what we learned in the past section regarding API routes:
 
@@ -1012,9 +1014,60 @@ A fairly overly-complex section and attempt at hands-on practice. As is typical 
 
 ### `Section Completed: 5/21/2022`
 
-# Section 09 - Project Time - API Routes
-
 # Section 10 - Working with App-wide State (React Context)
+
+In this section, we will learn:
+
+- App-Wide State Management
+- Working with React Context
+- How to use React Context in Next.js Apps
+
+## Creating a New React Context
+
+Not much to note here: It is fairly standard React Context -- nothing unique to Next.js
+
+```js
+import React, { createContext, useState } from 'react';
+
+const initialState = {
+  notification: null, // { title, message, status }
+  showNotification: function (notificationData) {},
+  hideNotification: function () {},
+};
+
+const NotificationContext = createContext(initialState);
+
+export function NotificationContextProvider(props) {
+  const [activeNotification, setActiveNotification] = useState();
+
+  function handleShowNotification(notificationData) {
+    setActiveNotification(notificationData);
+  }
+
+  function handleHideNotification() {
+    setActiveNotification(null);
+  }
+
+  const context = {
+    notification: activeNotification,
+    showNotification: handleShowNotification,
+    hideNotification: handleHideNotification,
+  };
+
+  return <NotificationContext.Provider value={context}>{props.children}</NotificationContext.Provider>;
+}
+
+export default NotificationContext;
+```
+
+In the Comments and Registration components, we then access the context to create a notification object with varying titles, messages, and status depending on how the fetching and posting of Comments / registration went. We create a Notification component that works with this context to update its title, message, and status, as well as handle the logic for when to show and hide the notification. We place this NotificationContextProvider component inside the App component, so all our pages have access to it. We then place the Notification component itself inside Layout, so it can be rendered on all pages.
+
+## Section Summary
+
+- Nothing special using Context in Next.js opposed to React
+- Could have also used Redux in a similar way
+
+### `Section Completed: 5/21/2022`
 
 # Section 11 - Complete App Example - Building a Full Blog
 
