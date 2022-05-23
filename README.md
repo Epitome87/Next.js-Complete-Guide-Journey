@@ -996,6 +996,22 @@ What we learned:
 
 # Section 08 - Adding Backend Code with API Routes (Fullstack React)
 
+In this section, we will revisit the Events project and incorporate what we learned in the past section regarding API routes:
+
+- Add a newsletter registration flow
+- Add a "Comments" feature to comment on an event
+
+## Section Summary
+
+- Create static and dynamic routes
+- How to add routes and run server-side logic
+- How to do logic for connecting to a MongoDB database
+- How to handle errors
+
+A fairly overly-complex section and attempt at hands-on practice. As is typical with Max's course, there is a lot of refactoring over and over, where you could spend 20 minutes learning nothing new, just watching him organize code in a way that should have been done initially! This section also has made me see how tedious and sloppy creating RESTful routes in Next.js is compared to an Express app. So I will definitely consult other sources to see if there are more elegant, organized ways to handle this subject.
+
+### `Section Completed: 5/21/2022`
+
 # Section 09 - Project Time - API Routes
 
 # Section 10 - Working with App-wide State (React Context)
