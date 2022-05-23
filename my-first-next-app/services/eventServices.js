@@ -4,8 +4,6 @@ export async function getAllEvents() {
   const response = await fetch(firebaseEventsURI);
   const data = await response.json();
 
-  console.log('HI', data);
-
   const events = [];
 
   for (const key in data) {

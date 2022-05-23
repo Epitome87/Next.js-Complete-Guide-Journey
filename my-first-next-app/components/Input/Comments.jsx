@@ -33,7 +33,8 @@ function Comments(props) {
     });
 
     const data = await res.json();
-    console.log('Data', data);
+
+    // We could also update the state so we can see the newly-added comment without having to refresh
   }
 
   return (
